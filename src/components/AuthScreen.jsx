@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import { useGameState } from '../context/gameStateContext';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:3000`;
 
@@ -51,28 +49,29 @@ const AuthScreen = ({ onLogin }) => {
         <p className="subtitle" style={{marginBottom: '2rem', color: 'var(--text-muted)'}}>Authentication Required</p>
         
         <form onSubmit={handleAuth} className="auth-form" style={{display: 'flex', flexDirection: 'column', gap: '1.2rem'}}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-            <GoogleLogin
-              onSuccess={credentialResponse => {
-                try {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  // In a real app, you'd send this to the backend. Here we auto-login visually.
-                  const googleUsername = decoded.email;
-                  localStorage.setItem('sov_token', credentialResponse.credential);
-                  localStorage.setItem('sov_username', googleUsername);
-                  setGlobalUsername(googleUsername);
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', width: '100%' }}>
+            <button 
+              type="button"
+              onClick={() => {
+                const email = prompt("Enter your Google Email (Simulated Auth):");
+                if (email && email.includes('@')) {
+                  localStorage.setItem('sov_token', 'mock_google_token');
+                  localStorage.setItem('sov_username', email.split('@')[0]);
+                  setGlobalUsername(email.split('@')[0]);
                   onLogin();
-                } catch (e) {
-                  setError("Google Login failed to decode.");
+                } else if (email) {
+                  alert("Please enter a valid email address.");
                 }
               }}
-              onError={() => {
-                setError("Google Login Failed.");
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                width: '100%', padding: '12px', borderRadius: '4px', border: '1px solid #4285f4',
+                background: '#fff', color: '#757575', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'Roboto, sans-serif'
               }}
-              theme="filled_black"
-              shape="pill"
-              text="signin_with"
-            />
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" style={{width: '20px', height: '20px'}} />
+              Sign in with Google
+            </button>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>

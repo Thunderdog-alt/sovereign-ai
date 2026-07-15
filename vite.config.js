@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      devOptions: { enabled: true },
       registerType: 'autoUpdate',
       manifest: {
         name: 'Sovereign AI',
