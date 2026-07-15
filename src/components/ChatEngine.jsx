@@ -9,7 +9,7 @@ import ChatHistory from './ChatHistory';
 import ChatActionMenu from './ChatActionMenu';
 import { useGameState } from '../context/gameStateContext';
 import { User, Image as ImageIcon, Send, Clock, Plus, Zap, Star, MessageSquare, VolumeX, Volume2, Mic, MicOff } from 'lucide-react';
-import { socket } from '../socket';
+import { socket, connectAndAuth } from '../socket';
 import { playSound, crossfadeBgm, startVoidLoop, stopVoidLoop } from '../utils/AudioManager';
 import { speakMessage, toggleMuteVoice, getIsMuted } from '../utils/VoiceReader';
 
@@ -36,7 +36,8 @@ const ChatEngine = ({ onExit, lobbyConfig }) => {
   const [lobbyState, setLobbyState] = useState(null);
 
   useEffect(() => {
-    socket.connect();
+    // Connect and automatically send user's Google OAuth token to backend
+    connectAndAuth();
     
     // Start ambient void sound
     startVoidLoop();
