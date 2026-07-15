@@ -39,7 +39,7 @@ const MultiplayerHub = ({ onJoin, onBack }) => {
   };
 
   return (
-    <div className="start-container" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className="start-container" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', overflowY: 'auto' }}>
       <button 
         onClick={onBack}
         style={{ position: 'absolute', top: '20px', left: '20px', background: 'transparent', border: 'none', color: 'var(--accent-cyan)', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}

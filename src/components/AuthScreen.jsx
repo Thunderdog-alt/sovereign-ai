@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import { useGameState } from '../context/gameStateContext';
+import { unlockAudio, playSound } from '../utils/AudioManager';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:3000`;
 
@@ -15,6 +16,8 @@ const AuthScreen = ({ onLogin }) => {
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
+    unlockAudio();
+    playSound('click', 0.5);
     
     try {
       const endpoint = isRegister ? '/api/register' : '/api/login';
@@ -42,8 +45,8 @@ const AuthScreen = ({ onLogin }) => {
 
 
   return (
-    <div className="auth-container splash-container" style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <div className="auth-box glass-panel" style={{ width: '400px', padding: '3rem', textAlign: 'center', borderRadius: '20px', border: '1px solid rgba(0, 255, 255, 0.2)', boxShadow: '0 0 40px rgba(0, 255, 255, 0.1)' }}>
+    <div className="auth-container splash-container" style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', overflowY: 'auto', padding: '2rem 0' }}>
+      <div className="auth-box glass-panel" style={{ width: '400px', padding: '3rem', textAlign: 'center', borderRadius: '20px', border: '1px solid rgba(0, 255, 255, 0.2)', boxShadow: '0 0 40px rgba(0, 255, 255, 0.1)', margin: 'auto' }}>
         <ShieldAlert size={60} className="auth-icon" style={{color: 'var(--accent-cyan)', marginBottom: '1rem', filter: 'drop-shadow(0 0 10px var(--accent-cyan))'}} />
         <h2 className="title-text" style={{fontSize: '2.5rem', marginBottom: '0.5rem', letterSpacing: '4px'}}>SOVEREIGN</h2>
         <p className="subtitle" style={{marginBottom: '2rem', color: 'var(--text-muted)'}}>Authentication Required</p>

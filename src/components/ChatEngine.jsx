@@ -149,7 +149,12 @@ const ChatEngine = ({ onExit, lobbyConfig }) => {
     const interval = setInterval(() => {
       const elapsed = (Date.now() - lobbyState.turnStartTime) / 1000;
       const rem = Math.max(0, lobbyState.timeLimit - elapsed);
-      setTimeLeft(Math.ceil(rem));
+      const newTime = Math.ceil(rem);
+      setTimeLeft(newTime);
+      // Play tick sound when <= 10 seconds
+      if (newTime <= 10 && newTime > 0) {
+        playSound('timer', 0.4);
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [lobbyState]);
@@ -164,6 +169,20 @@ const ChatEngine = ({ onExit, lobbyConfig }) => {
           <SystemHUD onExit={onExit} />
         </div>
       </div>
+
+      <button 
+        onClick={() => setHudOpen(true)}
+        style={{
+          position: 'fixed', right: '20px', top: '50%', transform: 'translateY(-50%)',
+          background: 'rgba(10, 10, 15, 0.9)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)',
+          padding: '15px 10px', borderRadius: '12px 0 0 12px', zIndex: 50, cursor: 'pointer',
+          boxShadow: '0 0 15px rgba(0, 240, 255, 0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px'
+        }}
+      >
+        <span style={{ writingMode: 'vertical-rl', textOrientation: 'upright', fontWeight: 'bold', letterSpacing: '2px', fontSize: '1.2rem' }}>
+          SYSTEM
+        </span>
+      </button>
 
       <div className="chat-panel">
         <ChatHeader 

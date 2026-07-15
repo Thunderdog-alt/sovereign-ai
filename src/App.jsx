@@ -24,7 +24,7 @@ function AppContent() {
       const token = localStorage.getItem('sov_token');
       const username = localStorage.getItem('sov_username');
       if (token && username) {
-        setAppState('start'); // Skip splash if auto-logging in
+        setAppState('splash'); // Always show splash so audio gets unlocked on first click
       }
     }
   }, [appState]);

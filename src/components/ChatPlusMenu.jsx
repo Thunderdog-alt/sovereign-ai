@@ -22,10 +22,6 @@ const ChatPlusMenu = ({
       borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px',
       boxShadow: '0 0 40px rgba(0,240,255,0.2)', zIndex: 100, width: '320px', maxHeight: '500px', overflowY: 'auto'
     }}>
-      <button className="menu-btn" style={{ position: 'relative', top: 0, left: 0, width: '100%', justifyContent: 'flex-start', border: 'none', padding: '12px' }} onClick={() => { setHudOpen(true); setPlusMenuOpen(false); }}>
-        <User size={18}/> Character Details
-      </button>
-      
       <button className="menu-btn" style={{ position: 'relative', top: 0, left: 0, width: '100%', justifyContent: 'flex-start', border: 'none', padding: '12px' }} onClick={() => { setAnimeImageGenEnabled(!animeImageGenEnabled); setPlusMenuOpen(false); }}>
         <ImageIcon size={18}/> {animeImageGenEnabled ? 'Disable Anime Gen' : 'Enable Anime Gen'}
       </button>

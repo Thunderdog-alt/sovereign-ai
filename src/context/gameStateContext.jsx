@@ -40,6 +40,7 @@ export const GameStateProvider = ({ children }) => {
   const [companions, setCompanions] = useState(loadState('companions', []));
   const [skills, setSkills] = useState(loadState('skills', ["[F] Slash (Base)", "[E] Heal (Base)"]));
   const [customWorlds, setCustomWorlds] = useState(loadState('customWorlds', []));
+  const [debuffs, setDebuffs] = useState(loadState('debuffs', []));
 
   useEffect(() => {
     localStorage.setItem('sov_level', JSON.stringify(level));
@@ -56,13 +57,15 @@ export const GameStateProvider = ({ children }) => {
     localStorage.setItem('sov_customWorlds', JSON.stringify(customWorlds));
     localStorage.setItem('sov_characterName', JSON.stringify(characterName));
     localStorage.setItem('sov_characterDescription', JSON.stringify(characterDescription));
-  }, [level, xp, coins, hp, maxHp, mp, maxMp, stats, systemData, companions, skills, customWorlds, characterName, characterDescription]);
+    localStorage.setItem('sov_debuffs', JSON.stringify(debuffs));
+  }, [level, xp, coins, hp, maxHp, mp, maxMp, stats, systemData, companions, skills, customWorlds, characterName, characterDescription, debuffs]);
 
   const parseRewardTags = (text) => {
     const expMatch = text.match(/<EXP:\+?(\d+)>/);
     const coinMatch = text.match(/<COIN:\+?(\d+)>/);
     const hpMatch = text.match(/<HP:-(\d+)>/);
     const mpMatch = text.match(/<MP:-(\d+)>/);
+    const debuffMatch = text.match(/<DEBUFFS:(.*?)>/);
     
     let cleanText = text;
     let newXp = xp, newCoins = coins, newHp = hp, newMp = mp;
@@ -71,6 +74,11 @@ export const GameStateProvider = ({ children }) => {
     if (coinMatch) { newCoins += parseInt(coinMatch[1], 10); cleanText = cleanText.replace(/<COIN:\+?\d+>/g, ''); }
     if (hpMatch) { newHp = Math.max(0, newHp - parseInt(hpMatch[1], 10)); cleanText = cleanText.replace(/<HP:-\d+>/g, ''); }
     if (mpMatch) { newMp = Math.max(0, newMp - parseInt(mpMatch[1], 10)); cleanText = cleanText.replace(/<MP:-\d+>/g, ''); }
+    if (debuffMatch) {
+      const newDebuffs = debuffMatch[1].split(',').map(d => d.trim()).filter(d => d.length > 0);
+      setDebuffs(newDebuffs);
+      cleanText = cleanText.replace(/<DEBUFFS:.*?>/g, '');
+    }
 
     if (newXp !== xp) handleXpGain(newXp);
     if (newCoins !== coins) setCoins(newCoins);
@@ -108,7 +116,8 @@ export const GameStateProvider = ({ children }) => {
       gameMode, setGameMode, avatarImage, setAvatarImage, companions, setCompanions,
       level, xp, coins, setCoins, hp, maxHp, mp, maxMp,
       stats, setStats, systemData, updateSystemData, parseRewardTags,
-      skills, setSkills, customWorlds, setCustomWorlds
+      skills, setSkills, customWorlds, setCustomWorlds,
+      debuffs, setDebuffs
     }}>
       {children}
     </GameStateContext.Provider>

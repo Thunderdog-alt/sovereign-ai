@@ -1,14 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGameState } from '../context/gameStateContext';
 import CreateWorldModal from './CreateWorldModal';
-import { Zap } from 'lucide-react';
-
-const PRE_MADE_WORLDS = [
-  { name: "500 BCE Babylon", image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=400&auto=format&fit=crop" },
-  { name: "Cyber City 2099", image: "https://images.unsplash.com/photo-1515630278258-407f66498911?q=80&w=400&auto=format&fit=crop" },
-  { name: "Eldoria High Fantasy", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=400&auto=format&fit=crop" },
-  { name: "Neo-Tokyo Underground", image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=400&auto=format&fit=crop" },
-];
+import { Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import MASSIVE_WORLDS from '../data/worlds.json';
 
 const ANIME_TROPES = [
   "Jujutsu Sorcerer Tokyo", "Shinigami Soul Society", "Hidden Leaf Ninja Village",
@@ -20,6 +14,15 @@ const StartScreen = ({ onWorldSelect }) => {
   const { setWorld, customWorlds, setCustomWorlds } = useGameState();
   const [showModal, setShowModal] = useState(false);
   const [isGeneratingAnime, setIsGeneratingAnime] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 50;
+
+  const currentWorlds = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return MASSIVE_WORLDS.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(MASSIVE_WORLDS.length / ITEMS_PER_PAGE);
 
   const handleSelect = (worldName) => {
     setWorld(worldName);
@@ -114,18 +117,34 @@ const StartScreen = ({ onWorldSelect }) => {
       </section>
 
       <section className="worlds-section" style={{ marginTop: '2rem' }}>
-        <h3 className="section-title">Pre-Made Realities (25)</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 className="section-title" style={{ margin: 0 }}>Pre-Made Realities ({MASSIVE_WORLDS.length})</h3>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', padding: '5px', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+            ><ChevronLeft /></button>
+            <span style={{ color: 'var(--text-muted)' }}>Page {currentPage} of {totalPages}</span>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', padding: '5px', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+            ><ChevronRight /></button>
+          </div>
+        </div>
         <div className="worlds-grid">
-          {PRE_MADE_WORLDS.map((w, idx) => (
+          {currentWorlds.map((w) => (
             <div 
-              key={idx} 
+              key={w.id} 
               className="world-card" 
-              onClick={() => handleSelect(w.name)}
-              style={{ backgroundImage: `url('${w.image}')` }}
+              onClick={() => handleSelect(w.title)}
+              style={{ backgroundImage: `url('${w.img}')` }}
             >
               <div className="world-card-overlay"></div>
-              <div className="world-card-content">
-                <h4>{w.name}</h4>
+              <div className="world-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <h4>{w.title}</h4>
+                <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)' }}>{w.type}: {w.genre}</span>
               </div>
             </div>
           ))}

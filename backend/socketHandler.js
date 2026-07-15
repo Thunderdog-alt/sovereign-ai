@@ -110,6 +110,7 @@ IMPORTANT RULES (ABSOLUTE):
 8. CONTEXT OVERWATCH: Retain absolute precise continuity from preceding turns. Every choice made must carry cascading narrative ripple consequences.
 9. DYNAMIC REWARDS LOGIC: You must append mechanical output tags to the literal end of your narrative block for parse processing. Use: <EXP:+X>, <GOLD:+X>, <HP:-X>, or <MP:-X> based on environmental hazards or achievements.
 10. DYNAMIC MOOD TRACKING: You MUST append a single mood tag at the very end of your response to dictate the background music. Choose EXACTLY ONE from: <MOOD:Happy>, <MOOD:Sad>, <MOOD:Boss>, <MOOD:Fight>, <MOOD:Romance>, <MOOD:Stealth>, <MOOD:Slick>, <MOOD:Neutral>.
+11. DEBUFF TRACKING: If the player suffers any injuries, ailments, or negative status effects, append a debuff tag at the end: <DEBUFFS:Injury1,Injury2,...>. If no active debuffs exist, do NOT append the tag. Examples of valid debuffs: Bleeding, Broken Arm, Exhausted, Poisoned, Blinded, Cursed.
 `;
 
     if (actions.length > 0) {
