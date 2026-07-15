@@ -167,7 +167,7 @@ const ChatEngine = ({ onExit, lobbyConfig }) => {
       <div className={`player-profile-overlay ${hudOpen ? 'open' : 'closed'}`}>
         <div className="player-profile-modal">
           <button className="close-profile-btn" onClick={() => setHudOpen(false)}>X</button>
-          <SystemHUD onExit={onExit} />
+          <SystemHUD onExit={onExit} lobbyConfig={lobbyConfig} />
         </div>
       </div>
 

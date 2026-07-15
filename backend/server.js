@@ -126,6 +126,20 @@ app.get('/api/lobbies', (req, res) => {
   });
 });
 
+// Memory Vault viewer endpoint
+app.get('/api/vault/:lobbyId', (req, res) => {
+  const { lobbyId } = req.params;
+  db.get(
+    `SELECT archive, archived_count, last_updated FROM memory_vault WHERE lobby_id = ?`,
+    [lobbyId],
+    (err, vault) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (!vault) return res.json({ archive: '', archived_count: 0, last_updated: null });
+      res.json(vault);
+    }
+  );
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'online', timestamp: new Date().toISOString() });
 });

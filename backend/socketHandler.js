@@ -1,4 +1,4 @@
-import { db, enforceMemoryVault } from './database.js';
+import { db, enforceMemoryVault, getVaultArchive } from './database.js';
 import { getGeminiModel } from './server.js';
 
 export const lobbies = {};
@@ -116,17 +116,29 @@ async function processTurn(io, lobbyId, isRegen = false) {
     return;
   }
 
-  // Enforce memory vault before generating response
-  await enforceMemoryVault(lobbyId, modelHandle);
+  // Enforce memory vault — moves messages falling out of the 650-limit into the permanent archive
+  await enforceMemoryVault(lobbyId);
 
-  db.get(`SELECT summary FROM memory_vault WHERE lobby_id = ?`, [lobbyId], (err, vault) => {
-    let memorySummary = vault && vault.summary ? `\n[VAULT MEMORY]: ${vault.summary}` : '';
+  // Retrieve vault archive to inject into AI context
+  const vaultData = await getVaultArchive(lobbyId);
+  
+  // Inject the LAST ~3000 characters of the vault so the AI remembers old events
+  // (The full archive is stored in the DB; we only send a window to the AI to avoid token limits)
+  let memorySection = '';
+  if (vaultData.archive && vaultData.archive.length > 0) {
+    const archiveSnippet = vaultData.archive.length > 3000
+      ? '...[ earlier history truncated — ' + (vaultData.archived_count || 0) + ' archived messages ]...\n' + vaultData.archive.slice(-3000)
+      : vaultData.archive;
+    memorySection = `\n\n[MEMORY VAULT — ${vaultData.archived_count || 0} archived messages from earlier in the story. Use this for continuity]:\n${archiveSnippet}`;
+  }
 
-    let aggregatedPrompt = `[System Instructions]: The world is ${lobby.world}. You are the Game Master.
+  const _unused = null;
+
+  let aggregatedPrompt = `[System Instructions]: The world is ${lobby.world}. You are the Game Master.
 Game Mode: ${lobby.gameMode}.
 If the mode is 'God Mode', the player has absolute control over the narrative; you must bend reality to their will.
 If the mode is 'Start from Scratch', the player is grounded, vulnerable, and must struggle; actions can fail, injuries happen, and you must strictly enforce logical consequences.
-The player has the following System: ${lobby.systemType}.${memorySummary}
+The player has the following System: ${lobby.systemType}.${memorySection}
 
 IMPORTANT RULES (ABSOLUTE):
 1. ABSOLUTE ZERO GOD-MODING: You are completely FORBIDDEN from writing dialogue, thoughts, movements, choices, or emotional responses for the player character. You only direct environmental variables and independent NPCs.
@@ -182,7 +194,6 @@ IMPORTANT RULES (ABSOLUTE):
         }
       }
     });
-  });
 }
 
 async function callGeminiWithOAuth(accessToken, prompt, history) {
