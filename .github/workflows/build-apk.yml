@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -45,15 +47,13 @@ jobs:
           cd android
           ./gradlew assembleDebug
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: latest-build
-          name: Sovereign AI - Standalone
-          draft: false
-          prerelease: false
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Commit APK to branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-artifacts
+          # Copy APK to root to make it easy to find
+          cp android/app/build/outputs/apk/debug/app-debug.apk ./sovereign-ai-standalone.apk
+          git add sovereign-ai-standalone.apk
+          git commit -m "Add compiled APK"
+          git push origin build-artifacts --force
