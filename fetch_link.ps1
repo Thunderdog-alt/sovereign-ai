@@ -1,0 +1,34 @@
+$ErrorActionPreference = "Stop"
+
+Write-Host "Waiting for cloud build to finish and push download link to branch..."
+$maxWaitSeconds = 600
+$elapsed = 0
+$success = $false
+
+while (-not $success -and $elapsed -lt $maxWaitSeconds) {
+    Write-Host "Fetching latest branches..."
+    # Suppress errors if branch doesn't exist yet
+    $fetchProcess = Start-Process -FilePath "git" -ArgumentList "fetch origin build-artifacts" -Wait -PassThru -NoNewWindow
+    
+    if ($fetchProcess.ExitCode -eq 0) {
+        Write-Host "Branch found! Extracting link..."
+        $checkoutProcess = Start-Process -FilePath "git" -ArgumentList "checkout origin/build-artifacts -- download_link.txt" -Wait -PassThru -NoNewWindow
+        
+        if ($checkoutProcess.ExitCode -eq 0 -and (Test-Path "download_link.txt")) {
+            $link = Get-Content "download_link.txt"
+            Write-Host "Download Link successfully extracted: $link"
+            $success = $true
+        }
+    }
+    
+    if (-not $success) {
+        Write-Host "Not ready yet. Retrying in 15 seconds... ($elapsed / $maxWaitSeconds seconds)"
+        Start-Sleep -Seconds 15
+        $elapsed += 15
+    }
+}
+
+if (-not $success) {
+    Write-Host "Failed to retrieve link after $maxWaitSeconds seconds."
+    exit 1
+}
