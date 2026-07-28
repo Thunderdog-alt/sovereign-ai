@@ -1,0 +1,6 @@
+{
+  "appId": "com.sovereign.ai",
+  "appName": "Sovereign AI",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

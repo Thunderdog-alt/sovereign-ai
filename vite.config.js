@@ -18,17 +18,22 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'https://cdn-icons-png.flaticon.com/512/2111/2111501.png',
+            src: '/logo.jpg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/jpeg'
           },
           {
-            src: 'https://cdn-icons-png.flaticon.com/512/2111/2111501.png',
+            src: '/logo.jpg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/jpeg'
           }
         ]
       }
     })
   ],
+  server: {
+    watch: {
+      ignored: ['**/public/audio/**']
+    }
+  }
 })

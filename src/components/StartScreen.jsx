@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useGameState } from '../context/gameStateContext';
 import CreateWorldModal from './CreateWorldModal';
-import { Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Zap, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import MASSIVE_WORLDS from '../data/worlds.json';
 
 const ANIME_TROPES = [
@@ -15,14 +15,30 @@ const StartScreen = ({ onWorldSelect }) => {
   const [showModal, setShowModal] = useState(false);
   const [isGeneratingAnime, setIsGeneratingAnime] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const ITEMS_PER_PAGE = 50;
+
+  const filteredWorlds = useMemo(() => {
+    if (!searchTerm) return MASSIVE_WORLDS;
+    const lowerSearch = searchTerm.toLowerCase();
+    return MASSIVE_WORLDS.filter(w => 
+      w.title.toLowerCase().includes(lowerSearch) || 
+      w.genre.toLowerCase().includes(lowerSearch) ||
+      w.lore?.toLowerCase().includes(lowerSearch)
+    );
+  }, [searchTerm]);
 
   const currentWorlds = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return MASSIVE_WORLDS.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [currentPage]);
+    return filteredWorlds.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentPage, filteredWorlds]);
 
-  const totalPages = Math.ceil(MASSIVE_WORLDS.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredWorlds.length / ITEMS_PER_PAGE) || 1;
+
+  // Reset to page 1 when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleSelect = (worldName) => {
     setWorld(worldName);
@@ -38,7 +54,7 @@ const StartScreen = ({ onWorldSelect }) => {
     setIsGeneratingAnime(true);
     const randomTrope = ANIME_TROPES[Math.floor(Math.random() * ANIME_TROPES.length)];
     const seed = Math.floor(Math.random() * 100000);
-    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(`masterpiece anime 90s aesthetic beautiful cinematic scenery of ${randomTrope}`)}?width=400&height=250&nologo=true&seed=${seed}`;
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(`masterpiece anime 90s aesthetic character portrait of ${randomTrope}`)}?width=400&height=500&nologo=true&seed=${seed}`;
     
     setTimeout(() => {
       const newAnimeWorld = {
@@ -77,7 +93,7 @@ const StartScreen = ({ onWorldSelect }) => {
               className="hero-btn create-world-btn"
               onClick={() => setShowModal(true)}
             >
-              CREATE NEW REALITY
+              CREATE NEW PERSONA
             </button>
             <button 
               className="hero-btn anime-gen-btn"
@@ -86,16 +102,16 @@ const StartScreen = ({ onWorldSelect }) => {
               style={{ background: 'linear-gradient(45deg, #ff0055, #a200ff)', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}
             >
               {isGeneratingAnime ? <Zap className="spin" size={18} /> : <Zap size={18} />}
-              {isGeneratingAnime ? "SYNTHESIZING..." : "GENERATE ANIME WORLD"}
+              {isGeneratingAnime ? "SYNTHESIZING..." : "GENERATE ANIME PERSONA"}
             </button>
           </div>
         </div>
       </header>
 
       <section className="worlds-section custom-worlds-section" style={{ marginTop: '3rem' }}>
-        <h3 className="section-title">Your Custom Realities</h3>
+        <h3 className="section-title">Your Custom Personas</h3>
         {customWorlds.length === 0 ? (
-          <p className="empty-state">No custom worlds created yet. Click 'Create New Reality' above.</p>
+          <p className="empty-state">No custom personas created yet. Click 'Create New Persona' above.</p>
         ) : (
           <div className="worlds-grid">
             {customWorlds.map((w) => (
@@ -109,6 +125,7 @@ const StartScreen = ({ onWorldSelect }) => {
                 <div className="world-card-content">
                   <h4>{w.name}</h4>
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{w.isPublic ? 'Public' : 'Private'}</span>
+                  {w.lore && <p style={{ fontSize: '0.8rem', color: '#ccc', marginTop: '5px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{w.lore}</p>}
                 </div>
               </div>
             ))}
@@ -117,15 +134,27 @@ const StartScreen = ({ onWorldSelect }) => {
       </section>
 
       <section className="worlds-section" style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h3 className="section-title" style={{ margin: 0 }}>Pre-Made Realities ({MASSIVE_WORLDS.length})</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
+          <h3 className="section-title" style={{ margin: 0, border: 'none' }}>Characters & Personas ({filteredWorlds.length})</h3>
+          
+          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '5px 15px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+            <Search size={16} color="var(--text-muted)" style={{ marginRight: '10px' }} />
+            <input 
+              type="text" 
+              placeholder="Search characters or tags..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '200px' }}
+            />
+          </div>
+
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button 
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', padding: '5px', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
             ><ChevronLeft /></button>
-            <span style={{ color: 'var(--text-muted)' }}>Page {currentPage} of {totalPages}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Page {currentPage} of {totalPages}</span>
             <button 
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
@@ -133,22 +162,30 @@ const StartScreen = ({ onWorldSelect }) => {
             ><ChevronRight /></button>
           </div>
         </div>
-        <div className="worlds-grid">
-          {currentWorlds.map((w) => (
-            <div 
-              key={w.id} 
-              className="world-card" 
-              onClick={() => handleSelect(w.title)}
-              style={{ backgroundImage: `url('${w.img}')` }}
-            >
-              <div className="world-card-overlay"></div>
-              <div className="world-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <h4>{w.title}</h4>
-                <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)' }}>{w.type}: {w.genre}</span>
+        
+        {currentWorlds.length === 0 ? (
+          <p className="empty-state">No personas match your search.</p>
+        ) : (
+          <div className="worlds-grid">
+            {currentWorlds.map((w) => (
+              <div 
+                key={w.id} 
+                className="world-card" 
+                onClick={() => handleSelect(w.title)}
+                style={{ backgroundImage: `url('${w.img}')` }}
+              >
+                <div className="world-card-overlay"></div>
+                <div className="world-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4>{w.title}</h4>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 'bold' }}>{w.type} / {w.genre}</span>
+                  <p style={{ fontSize: '0.8rem', color: '#ddd', marginTop: '4px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
+                    {w.lore || `Explore the depths of ${w.title}. A reality shaped by your decisions, survival, and choices.`}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

@@ -56,8 +56,14 @@ export const crossfadeBgm = (mood) => {
   const moodMap = {
     'happy': 'Happy', 'sad': 'Sad', 'boss': 'Boss', 'fight': 'Fight',
     'romance': 'Romance', 'stealth': 'Stealth', 'slick': 'Slick',
-    'Happy': 'Happy', 'Sad': 'Sad', 'Boss': 'Boss', 'Fight': 'Fight',
-    'Romance': 'Romance', 'Stealth': 'Stealth', 'Slick': 'Slick'
+    
+    // User requested aliases
+    'boss battle': 'Boss', 'god level threat': 'Boss', 'boss fight': 'Boss',
+    'romance/date': 'Romance', 'date': 'Romance',
+    'fight/action': 'Fight', 'action': 'Fight',
+    'sad/depressed': 'Sad', 'depressed': 'Sad',
+    'investigative/stealth': 'Stealth', 'investigative': 'Stealth',
+    'slick/bar': 'Slick', 'bar': 'Slick'
   };
   
   const resolvedMood = moodMap[mood] || mood;

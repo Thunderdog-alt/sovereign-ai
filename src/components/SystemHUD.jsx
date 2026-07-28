@@ -4,8 +4,7 @@ import InteractiveExtensions from './InteractiveExtensions';
 import SystemWidget from './SystemWidget';
 import { useGameState } from '../context/gameStateContext';
 import { LogOut, Archive, ChevronDown, ChevronUp } from 'lucide-react';
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:3000`;
+import { getVault } from '../utils/memoryManager';
 
 const SystemHUD = ({ onExit, lobbyConfig }) => {
   const { world, systemType, level, auraState, setAuraState, characterName, avatarImage, debuffs } = useGameState();
@@ -14,12 +13,11 @@ const SystemHUD = ({ onExit, lobbyConfig }) => {
   const [vault, setVault] = useState(null);
   const [vaultLoading, setVaultLoading] = useState(false);
 
-  const loadVault = async () => {
+  const loadVault = () => {
     if (!lobbyConfig?.lobbyId) return;
     setVaultLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/vault/${lobbyConfig.lobbyId}`);
-      const data = await res.json();
+      const data = getVault(lobbyConfig.lobbyId);
       setVault(data);
     } catch (e) {
       setVault({ archive: 'Failed to load vault.', archived_count: 0 });
