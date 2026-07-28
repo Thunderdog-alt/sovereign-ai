@@ -42,8 +42,8 @@ jobs:
           dos2unix android/gradlew
           chmod +x android/gradlew
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Copy Web Assets to Android
+        run: npx cap copy android
 
       - name: Build Debug APK
         run: |
