@@ -54,9 +54,12 @@ jobs:
           echo "DOWNLOAD_URL=$URL" >> $GITHUB_ENV
           echo "Direct download link: $URL"
 
-      - name: Output Download Link
+      - name: Commit Link to branch
         run: |
-          echo "========================================="
-          echo "APK successfully built!"
-          echo "Download here: ${{ env.DOWNLOAD_URL }}"
-          echo "========================================="
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-artifacts
+          echo "${{ env.DOWNLOAD_URL }}" > download_link.txt
+          git add download_link.txt
+          git commit -m "Add download link"
+          git push origin build-artifacts --force
