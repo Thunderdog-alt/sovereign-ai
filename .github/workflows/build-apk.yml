@@ -36,24 +36,27 @@ jobs:
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
-
       - name: Make gradlew executable
         run: chmod +x android/gradlew
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
 
       - name: Build Debug APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      - name: Commit APK to branch
+      - name: Upload APK to transfer.sh
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B build-artifacts
-          # Copy APK to root to make it easy to find
-          cp android/app/build/outputs/apk/debug/app-debug.apk ./sovereign-ai-standalone.apk
-          git add sovereign-ai-standalone.apk
-          git commit -m "Add compiled APK"
-          git push origin build-artifacts --force
+          echo "Uploading APK..."
+          URL=$(curl -H "Max-Days: 7" --upload-file android/app/build/outputs/apk/debug/app-debug.apk https://transfer.sh/Sovereign-AI.apk)
+          echo "DOWNLOAD_URL=$URL" >> $GITHUB_ENV
+          echo "Direct download link: $URL"
+
+      - name: Output Download Link
+        run: |
+          echo "========================================="
+          echo "APK successfully built!"
+          echo "Download here: ${{ env.DOWNLOAD_URL }}"
+          echo "========================================="

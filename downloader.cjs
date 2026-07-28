@@ -25,7 +25,7 @@ async function downloadFile(url, dest) {
             };
 
             https.get(url, options, (res) => {
-                if (res.statusCode === 301 || res.statusCode === 302) {
+                if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) {
                     console.log(`Redirecting to ${res.headers.location}`);
                     url = res.headers.location;
                     return attemptDownload();
